@@ -1,0 +1,227 @@
+/dts-v1/;
+#include "sun8i-v3s-linux.dtsi"
+#include "sunxi-common-regulators.dtsi"
+
+/ {
+	model = "Lichee Pi Zero";
+	compatible = "licheepi,licheepi-zero", "allwinner,sun8i-v3s";
+
+	aliases {
+		serial0 = &uart0;
+		spi0 = &spi0;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	leds {
+		compatible = "gpio-leds";
+
+		blue_led {
+			label = "blue";
+			gpios = <&pio 6 1 GPIO_ACTIVE_LOW>; /* PG1 */
+		};
+
+		green_led {
+			label = "green";
+			gpios = <&pio 6 0 GPIO_ACTIVE_LOW>; /* PG0 */
+			default-state = "on";
+		};
+
+		red_led {
+			label = "red";
+			gpios = <&pio 6 2 GPIO_ACTIVE_LOW>; /* PG2 */
+		};
+	};
+};
+
+&ehci0 {
+	status = "okay";
+};
+
+&ohci0 {
+	status = "okay";
+};
+
+&mmc0 {
+	broken-cd;
+	bus-width = <4>;
+	vmmc-supply = <&reg_vcc3v3>;
+	status = "disabled";
+};
+
+&uart0 {
+	pinctrl-0 = <&uart0_pb_pins>;
+	pinctrl-names = "default";
+	status = "okay";
+};
+
+&usb_otg {
+	dr_mode = "peripheral";
+	status = "okay";
+};
+
+&usbphy {
+	usb0_id_det = <&pio 5 6 GPIO_ACTIVE_HIGH>; /* PF6 */
+	status = "okay";
+};
+
+&i2c0 {
+	pinctrl-0 = <&i2c0_pins>;
+	pinctrl-names = "default";
+	status = "okay";
+	
+	ns2009: ns2009@48 {
+		compatible = "nsiway,ns2009";
+		reg = <0x48>;
+	};
+			
+
+
+};
+
+&csi1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&csi1_8bit_pins>;
+	status = "okay";
+
+	port {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		csi1_ep: endpoint {
+			remote-endpoint = <&gc0403_ep>;
+			bus-width = <8>;                              // number of data lines actively used, valid for the parallel busses.
+			hsync-active = <1>;                           // active state of the HSYNC signal, 0/1 for LOW/HIGH respectively.
+			vsync-active = <0>;                           // active state of the VSYNC signal, 0/1 for LOW/HIGH respectively.
+			data-active = <1>;                            // similar to HSYNC and VSYNC, specifies data line polarity.
+			pclk-sample = <1>;                            // sample data on rising (1) or falling (0) edge of the pixel clock signal.
+		};
+	};
+};
+
+&i2c1 {
+	pinctrl-0 = <&i2c1_pe_pins>;
+	pinctrl-names = "default";
+	status = "okay";
+	
+	gc0403@78 {
+		compatible = "galaxycore,gc0403";
+		reg = <0x78>;
+		status = "okay";
+		pinctrl-names = "default";
+		pinctrl-0 = <&csi1_mclk_pin>;
+		clocks = <&ccu CLK_CSI1_MCLK>;
+		clock-names = "xvclk";
+
+        assigned-clocks = <&ccu CLK_CSI1_MCLK>;
+        assigned-clock-rates = <24000000>;
+		pwdn-gpios = <&pio 4 17 GPIO_ACTIVE_LOW>; /* PE17 */
+		reset-gpios = <&pio 4 16 GPIO_ACTIVE_HIGH>;
+		
+		port {
+			gc0403_ep: endpoint {
+				remote-endpoint = <&csi1_ep>;
+				bus-width = <8>;                              // number of data lines actively used, valid for the parallel busses.
+				hsync-active = <1>;                           // active state of the HSYNC signal, 0/1 for LOW/HIGH respectively.
+				vsync-active = <0>;                           // active state of the VSYNC signal, 0/1 for LOW/HIGH respectively.
+				data-active = <1>;                            // similar to HSYNC and VSYNC, specifies data line polarity.
+				pclk-sample = <1>;                            // sample data on rising (1) or falling (0) edge of the pixel clock signal.
+			};
+		};
+	};
+
+};
+
+&spi0 {
+	status = "okay";
+	
+	spi-nor@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "macronix,mx25u12835f", "jedec,spi-nor";
+		reg = <0>;
+		spi-max-frequency = <50000000>;
+		status = "okay";
+
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			partition@0 {
+				label = "u-boot";
+				reg = <0x000000 0x50000>;
+				read-only;
+			};
+
+			partition@1 {
+				label = "dtb";
+				reg = <0x50000 0x4000>;
+				read-only;
+			};
+
+			partition@2 {
+				label = "kernel";
+				reg = <0x60000 0x300000>;
+				read-only;
+			};
+
+			partition@3 {
+				label = "rootfs";
+				reg = <0x360000 0x880000>;
+//				read-only;
+			};
+
+			partition@4 {
+				label = "overlay";
+				reg = <0xd60000 0x2A0000>;
+			};
+		};
+	};
+
+	//spi-nand@0 {
+		//#address-cells = <1>;
+		//#size-cells = <1>;
+		//compatible = "spi-nand";
+		//reg = <0>;
+		//spi-max-frequency = <50000000>;
+		//status = "disabled";
+
+		//partitions {
+			//compatible = "fixed-partitions";
+			//#address-cells = <1>;
+			//#size-cells = <1>;
+
+			//partition@0 {
+				//label = "u-boot";
+				//reg = <0x000000 0x80000>;
+				//read-only;
+			//};
+
+			//partition@1 {
+				//label = "dtb";
+				//reg = <0x80000 0x20000>;
+				//read-only;
+			//};
+
+			//partition@2 {
+				//label = "kernel";
+				//reg = <0x100000 0x700000>;
+				//read-only;
+			//};
+
+			//partition@3 {
+				//label = "rom";
+				//reg = <0x800000 0x4000000>;
+				//read-only;
+			//};
+
+			//partition@4 {
+				//label = "overlay";
+				//reg = <0x4800000 0x3000000>;
+			//};
+		//};
+	//};
+};

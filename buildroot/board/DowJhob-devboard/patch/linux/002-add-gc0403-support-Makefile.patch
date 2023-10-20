@@ -1,0 +1,10 @@
+--- a/drivers/media/i2c/Makefile	2022-02-16 18:52:54.000000000 +0700
++++ a/drivers/media/i2c/Makefile	2023-05-26 02:44:29.000000000 +0700
+@@ -24,6 +24,7 @@
+ obj-$(CONFIG_VIDEO_AD5820)  += ad5820.o
+ obj-$(CONFIG_VIDEO_AK7375)  += ak7375.o
+ obj-$(CONFIG_VIDEO_DW9714)  += dw9714.o
++obj-$(CONFIG_VIDEO_GC0403)  += gc0403.o
+ obj-$(CONFIG_VIDEO_DW9807_VCM)  += dw9807-vcm.o
+ obj-$(CONFIG_VIDEO_ADV7170) += adv7170.o
+ obj-$(CONFIG_VIDEO_ADV7175) += adv7175.o

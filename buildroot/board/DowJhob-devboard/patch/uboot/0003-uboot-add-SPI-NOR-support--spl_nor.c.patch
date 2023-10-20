@@ -1,0 +1,11 @@
+--- a/common/spl/spl_nor.c	2020-07-07 02:22:53.000000000 +0700
++++ a/common/spl/spl_nor.c"	2023-10-17 15:13:00.634838000 +0700
+@@ -20,7 +20,7 @@
+ 
+ unsigned long __weak spl_nor_get_uboot_base(void)
+ {
+-	return CONFIG_SYS_UBOOT_BASE;
++	return CONFIG_SYS_TEXT_BASE;
+ }
+ 
+ static int spl_nor_load_image(struct spl_image_info *spl_image,

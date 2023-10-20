@@ -326,7 +326,7 @@
 			};
 
 			csi1_mclk_pin: csi1-mclk-pin {
-				pins = "PE1";
+				pins = "PE20";
 				function = "csi";
 			};
 

@@ -1,0 +1,5 @@
+setenv bootargs console=ttyS0,115200 panic=5 console=tty0 rootwait root=/dev/mtdblock3 earlyprintk rw
+sf probe
+sf read 0x41800000 0x50000 0x8000
+sf read 0x41000000 0x60000 0x300000
+bootz 0x41000000 - 0x41800000
