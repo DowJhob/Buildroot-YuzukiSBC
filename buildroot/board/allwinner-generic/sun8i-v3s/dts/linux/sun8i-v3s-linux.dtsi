@@ -325,10 +325,18 @@
 				function = "csi";
 			};
 
-			csi1_mclk_pin: csi1-mclk-pin {
-				pins = "PE20";
+			old_csi1_mclk_pin: old-csi1-mclk-pin {
+				pins = "PE1";
 				function = "csi";
 			};
+
+			csi1_mclk_pin: csi1-mclk-pin {
+				pins = "PE20";
+//				function = "csi";
+				function = "csi_mipi";
+			};
+
+
 
 			uart0_pb_pins: uart0-pb-pins {
 				pins = "PB8", "PB9";

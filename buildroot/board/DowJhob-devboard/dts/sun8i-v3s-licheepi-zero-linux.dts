@@ -72,12 +72,49 @@
 	pinctrl-names = "default";
 	status = "okay";
 	
+	clock-frequency = <400000>;
+	
 	ns2009: ns2009@48 {
 		compatible = "nsiway,ns2009";
 		reg = <0x48>;
 	};
-			
 
+	gc0403@78 {
+		compatible = "galaxycore,gc0403";
+		reg = <0x78>;
+		status = "okay";
+		pinctrl-names = "default";
+		pinctrl-0 = <&csi1_mclk_pin>;
+
+        clocks = <&ccu CLK_CSI0_MCLK>;              // need for PE20
+		clock-names = "xvclk";
+
+        assigned-clocks = <&ccu CLK_CSI0_MCLK>;
+        assigned-clock-rates = <24000000>;
+
+//		powerdown-gpios = <&pio 4 17 GPIO_ACTIVE_LOW>; /* PE17 */
+//		reset-gpios = <&pio 4 16 GPIO_ACTIVE_HIGH>;
+		
+		powerdown-gpios = <&pio 4 17 GPIO_ACTIVE_HIGH>; /* PE17 */  // pwdn name dont be effect
+		reset-gpios = <&pio 4 16 GPIO_ACTIVE_HIGH>;
+		
+		rockchip,camera-module-index = <0>;
+		rockchip,camera-module-facing = "front";
+		rockchip,camera-module-name = "Galaxycore gc0403";
+		rockchip,camera-module-lens-name = "== ? --";
+		
+		port {
+			gc0403_ep: endpoint {
+				remote-endpoint = <&csi1_ep>;
+				bus-width = <8>;                              // number of data lines actively used, valid for the parallel busses.
+				data-shift = <4>;
+				hsync-active = <1>;                           // active state of the HSYNC signal, 0/1 for LOW/HIGH respectively.
+				vsync-active = <0>;                           // active state of the VSYNC signal, 0/1 for LOW/HIGH respectively.
+				data-active = <1>;                            // similar to HSYNC and VSYNC, specifies data line polarity.
+				pclk-sample = <1>;                            // sample data on rising (1) or falling (0) edge of the pixel clock signal.
+			};
+		};
+	};
 
 };
 
@@ -102,35 +139,9 @@
 };
 
 &i2c1 {
-	pinctrl-0 = <&i2c1_pe_pins>;
-	pinctrl-names = "default";
-	status = "okay";
-	
-	gc0403@78 {
-		compatible = "galaxycore,gc0403";
-		reg = <0x78>;
-		status = "okay";
-		pinctrl-names = "default";
-		pinctrl-0 = <&csi1_mclk_pin>;
-		clocks = <&ccu CLK_CSI1_MCLK>;
-		clock-names = "xvclk";
-
-        assigned-clocks = <&ccu CLK_CSI1_MCLK>;
-        assigned-clock-rates = <24000000>;
-		pwdn-gpios = <&pio 4 17 GPIO_ACTIVE_LOW>; /* PE17 */
-		reset-gpios = <&pio 4 16 GPIO_ACTIVE_HIGH>;
-		
-		port {
-			gc0403_ep: endpoint {
-				remote-endpoint = <&csi1_ep>;
-				bus-width = <8>;                              // number of data lines actively used, valid for the parallel busses.
-				hsync-active = <1>;                           // active state of the HSYNC signal, 0/1 for LOW/HIGH respectively.
-				vsync-active = <0>;                           // active state of the VSYNC signal, 0/1 for LOW/HIGH respectively.
-				data-active = <1>;                            // similar to HSYNC and VSYNC, specifies data line polarity.
-				pclk-sample = <1>;                            // sample data on rising (1) or falling (0) edge of the pixel clock signal.
-			};
-		};
-	};
+//	pinctrl-0 = <&i2c1_pe_pins>;
+//	pinctrl-names = "default";
+//	status = "okay";
 
 };
 

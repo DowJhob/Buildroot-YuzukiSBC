@@ -106,6 +106,7 @@
 +	struct i2c_client	*client;
 +	struct clk		*xvclk;
 +	struct gpio_desc	*pwdn_gpio;
++	struct gpio_desc	*reset_gpio;
 +	struct regulator_bulk_data supplies[GC0403_NUM_SUPPLIES];
 +
 +	struct v4l2_subdev	subdev;
@@ -798,6 +799,11 @@
 +	/* here usleep at least 10~15ms，will better */
 +	usleep_range(10 * 1000, 15 * 1000);
 +
++	if (!IS_ERR(gc0403->reset_gpio))
++		gpiod_set_value_cansleep(gc0403->reset_gpio, 1);
++	/* here usleep at least 10~15ms，will better */
++	usleep_range(10 * 1000, 15 * 1000);
++
 +	ret = gc0403_write_array(gc0403->client, gc0403->cur_mode->reg_list);
 +	if (ret)
 +		return ret;
@@ -924,7 +930,8 @@
 +	int analog_gain = 0;
 +	int i = 0;
 +
-+	if (pm_runtime_get(&client->dev) <= 0)
++//	if client->dev) <= 0)
++	if (!pm_runtime_get_if_in_use(&client->dev)) // from https://github.com/aosp-rockchip/README/blob/23c1487f8060c79f5ab73ebc7bccce10c6a8b655/patches-kernel/0001-+media-i2c-camera-driver-fixed-pm-get-error.patch#L21
 +		return 0;
 +
 +	switch (ctrl->id) {
@@ -1155,9 +1162,13 @@
 +		return -EINVAL;
 +	}
 +
-+	gc0403->pwdn_gpio = devm_gpiod_get(dev, "pwdn", GPIOD_OUT_LOW);
++	gc0403->pwdn_gpio = devm_gpiod_get(dev, "powerdown", GPIOD_OUT_LOW);
 +	if (IS_ERR(gc0403->pwdn_gpio))
 +		dev_warn(dev, "Failed to get pwdn-gpios\n");
++
++	gc0403->reset_gpio = devm_gpiod_get(dev, "reset", GPIOD_OUT_LOW);
++	if (IS_ERR(gc0403->reset_gpio))
++		dev_warn(dev, "Failed to get reset-gpios\n");
 +
 +	ret = gc0403_configure_regulators(gc0403);
 +	if (ret) {
