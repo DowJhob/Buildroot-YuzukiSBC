@@ -311,11 +311,15 @@
 			i2c0_pins: i2c0-pins {
 				pins = "PB6", "PB7";
 				function = "i2c0";
+				drive-strength = <10>;
+//                bias-pull-up;
 			};
 
 			i2c1_pe_pins: i2c1-pe-pins {
 				pins = "PE21", "PE22";
 				function = "i2c1";
+				drive-strength = <10>;
+//                bias-pull-up;
 			};
 
 			csi1_8bit_pins: csi1-8bit-pins {
@@ -323,20 +327,20 @@
 				       "PE10", "PE11", "PE12", "PE13", "PE14",
 				       "PE15";
 				function = "csi";
+				bias-disable;
 			};
 
 			old_csi1_mclk_pin: old-csi1-mclk-pin {
 				pins = "PE1";
 				function = "csi";
+				bias-disable;
 			};
 
 			csi1_mclk_pin: csi1-mclk-pin {
 				pins = "PE20";
-//				function = "csi";
 				function = "csi_mipi";
+				bias-disable;
 			};
-
-
 
 			uart0_pb_pins: uart0-pb-pins {
 				pins = "PB8", "PB9";
