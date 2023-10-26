@@ -804,7 +804,7 @@
 +	/* here usleep at least 10~15ms，will better */
 +	usleep_range(10 * 1000, 15 * 1000);
 +
-+	ret = gc0403_write_array(gc0403->client, gc0403->cur_mode->reg_list);
++//	ret = gc0403_write_array(gc0403->client, gc0403->cur_mode->reg_list);
 +	if (ret)
 +		return ret;
 +	usleep_range(10 * 1000, 20 * 1000);
@@ -1170,7 +1170,7 @@
 +	if (IS_ERR(gc0403->reset_gpio))
 +		dev_warn(dev, "Failed to get reset-gpios\n");
 +
-+	ret = gc0403_configure_regulators(gc0403);
++//	ret = gc0403_configure_regulators(gc0403);
 +	if (ret) {
 +		dev_err(dev, "Failed to get power regulators\n");
 +		return ret;

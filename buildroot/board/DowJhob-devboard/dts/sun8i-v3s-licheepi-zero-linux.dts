@@ -70,7 +70,7 @@
 &i2c0 {
 	pinctrl-0 = <&i2c0_pins>;
 	pinctrl-names = "default";
-//	status = "okay";
+	status = "okay";
 	
 	clock-frequency = <400000>;
 	
@@ -109,77 +109,77 @@
 	
 	clock-frequency = <400000>;
 
-	axp152: axp152@30 {
-		pinctrl-names = "default";
-//		compatible = "x-powers,axp152";
-		reg = <0x30>;   
-		interrupt-parent=<&pio>;
-		interrupts=<1 2 IRQ_TYPE_EDGE_FALLING>;
-//		interrupt-controller;
-		status = "okay";      
+	//axp152: axp152@30 {
+		//pinctrl-names = "default";
+////		compatible = "x-powers,axp152";
+		//reg = <0x30>;   
+		//interrupt-parent=<&pio>;
+		//interrupts=<1 2 IRQ_TYPE_EDGE_FALLING>;
+////		interrupt-controller;
+		//status = "okay";      
         	
-		regulators {
-			/* Default work frequency for buck regulators */
-//			x-powers,dcdc-freq = <1500>;			// default 2.25MHz
+		//regulators {
+			///* Default work frequency for buck regulators */
+////			x-powers,dcdc-freq = <1500>;			// default 2.25MHz
 
-			reg_dcdc1: dcdc1 {
-				regulator-name = "dcdc1";
-				regulator-min-microvolt = <3300000>;
-				regulator-max-microvolt = <3300000>;
-			};
+			//reg_dcdc1: dcdc1 {
+				//regulator-name = "dcdc1";
+				//regulator-min-microvolt = <3300000>;
+				//regulator-max-microvolt = <3300000>;
+			//};
 
-			reg_dcdc2: dcdc2 {
-				regulator-name = "dcdc2";
-			};
+			//reg_dcdc2: dcdc2 {
+				//regulator-name = "dcdc2";
+			//};
 
-			reg_dcdc3: dcdc3 {
-				regulator-name = "dcdc3";
-			};
+			//reg_dcdc3: dcdc3 {
+				//regulator-name = "dcdc3";
+			//};
 
-			reg_dcdc4: dcdc4 {
-				regulator-name = "dcdc4";
-				regulator-min-microvolt = <1800000>;
-				regulator-max-microvolt = <1800000>;
-			};
+			//reg_dcdc4: dcdc4 {
+				//regulator-name = "dcdc4";
+				//regulator-min-microvolt = <1800000>;
+				//regulator-max-microvolt = <1800000>;
+			//};
 
-			reg_rtc_ldo: rtc-ldo {
-				/* RTC-LDO is a fixed output regulator */
-				regulator-always-on;
-//				regulator-min-microvolt = <3100000>;
-//				regulator-max-microvolt = <3100000>;
-				regulator-name = "rtc-ldo";
-			};
+			//reg_rtc_ldo: rtc-ldo {
+				///* RTC-LDO is a fixed output regulator */
+				//regulator-always-on;
+////				regulator-min-microvolt = <3100000>;
+////				regulator-max-microvolt = <3100000>;
+				//regulator-name = "rtc-ldo";
+			//};
 
-			reg_ldo0: ldo0 {
-				regulator-name = "ldo0";
-			};
+			//reg_ldo0: ldo0 {
+				//regulator-name = "ldo0";
+			//};
 
-			reg_aldo1: aldo1 {
-				regulator-name = "aldo1";
-			};
+			//reg_aldo1: aldo1 {
+				//regulator-name = "aldo1";
+			//};
 
-			reg_aldo2: aldo2 {
-				regulator-name = "aldo2";
-				regulator-min-microvolt = <3000000>;
-				regulator-max-microvolt = <3000000>;
-			};
+			//reg_aldo2: aldo2 {
+				//regulator-name = "aldo2";
+				//regulator-min-microvolt = <3000000>;
+				//regulator-max-microvolt = <3000000>;
+			//};
 
-			reg_dldo1: dldo1 {
-				regulator-name = "dldo1";
-				regulator-min-microvolt = <3000000>;
-				regulator-max-microvolt = <3000000>;
-			};
+			//reg_dldo1: dldo1 {
+				//regulator-name = "dldo1";
+				//regulator-min-microvolt = <3000000>;
+				//regulator-max-microvolt = <3000000>;
+			//};
 
-			reg_dldo2: dldo2 {
-				regulator-name = "dldo2";
-			};
+			//reg_dldo2: dldo2 {
+				//regulator-name = "dldo2";
+			//};
 			
-			reg_ldo: ldo {
-			/* low noise GPIO0*/
-				regulator-name = "ldo";
-			};
-		};
-	};
+			//reg_ldo: ldo {
+			///* low noise GPIO0*/
+				//regulator-name = "ldo";
+			//};
+		//};
+	//};
 
 	gc0403@78 {
 		compatible = "galaxycore,gc0403";
@@ -195,9 +195,9 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&csi1_mclk_pin>;
 
-		DVDD-supply = <&reg_dcdc4>;   /* 1.8v */
-		avdd-supply = <&reg_aldo2>;   /* 3.0v */
-		dovdd-supply = <&reg_dldo1>;  /* 3.0v */
+//		DVDD-supply = <&reg_dcdc4>;   /* 1.8v */
+//		avdd-supply = <&reg_aldo2>;   /* 3.0v */
+//		dovdd-supply = <&reg_dldo1>;  /* 3.0v */
 
         clocks = <&ccu CLK_CSI0_MCLK>;              // need for PE20
 		clock-names = "xvclk";
@@ -247,7 +247,7 @@
 
 			partition@1 {
 				label = "dtb";
-				reg = <0x50000 0x4000>;
+				reg = <0x50000 0x10000>;
 				read-only;
 			};
 
@@ -259,14 +259,15 @@
 
 			partition@3 {
 				label = "rootfs";
-				reg = <0x360000 0x880000>;
+//				reg = <0x360000 0x880000>;
+				reg = <0x360000 0xCA0000>;
 //				read-only;
 			};
 
-			partition@4 {
-				label = "overlay";
-				reg = <0xd60000 0x2A0000>;
-			};
+//			partition@4 {
+//				label = "overlay";
+//				reg = <0xd60000 0x2A0000>;
+//			};
 		};
 	};
 
