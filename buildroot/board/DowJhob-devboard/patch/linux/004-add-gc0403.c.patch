@@ -788,7 +788,7 @@
 +		return ret;
 +	}
 +
-+	ret = regulator_bulk_enable(GC0403_NUM_SUPPLIES, gc0403->supplies);
++//	ret = regulator_bulk_enable(GC0403_NUM_SUPPLIES, gc0403->supplies);
 +	if (ret < 0) {
 +		dev_err(dev, "Failed to enable regulators\n");
 +		goto disable_clk;
@@ -804,7 +804,7 @@
 +	/* here usleep at least 10~15ms，will better */
 +	usleep_range(10 * 1000, 15 * 1000);
 +
-+//	ret = gc0403_write_array(gc0403->client, gc0403->cur_mode->reg_list);
++	ret = gc0403_write_array(gc0403->client, gc0403->cur_mode->reg_list);
 +	if (ret)
 +		return ret;
 +	usleep_range(10 * 1000, 20 * 1000);
