@@ -152,7 +152,7 @@
 	spi-nor@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "macronix,mx25u12835f", "jedec,spi-nor";
+		compatible = "macronix,mx25l12805d", "jedec,spi-nor";
 		reg = <0>;
 		spi-max-frequency = <50000000>;
 		status = "okay";
@@ -183,14 +183,15 @@
 			partition@3 {
 				label = "rootfs";
 //				reg = <0x360000 0x880000>;
-				reg = <0x360000 0xCA0000>;
+//				reg = <0x360000 0xCA0000>;
+				reg = <0x360000 0xC50000>;
 //				read-only;
 			};
 
-//			partition@4 {
-//				label = "overlay";
-//				reg = <0xd60000 0x2A0000>;
-//			};
+			partition@4 {
+				label = "home";
+				reg = <0xfb0000 0x50000>;
+			};
 		};
 	};
 
