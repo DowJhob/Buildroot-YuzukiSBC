@@ -4,3 +4,5 @@ buildroot-2022.02/
 buildroot/**/*.d
 buildroot/nullbytes
 buildroot/nnn
+buildroot/board/DowJhob-devboard/fs-overlay/
+buildroot/board/DowJhob-devboard/home/
