@@ -1,0 +1,58 @@
+--- a/drivers/media/mc/mc-entity.c
++++ b/drivers/media/mc/mc-entity.c
+@@ -897,6 +897,32 @@ media_entity_find_link(struct media_pad *source, struct media_pad *sink)
+ }
+ EXPORT_SYMBOL_GPL(media_entity_find_link);
+ 
++struct media_link *
++media_entity_get_single_enabled_link(struct media_entity *entity,
++				     u16 pad_index)
++{
++	struct media_link *candidate = ERR_PTR(-ENODEV);
++	struct media_link *link;
++
++	list_for_each_entry(link, &entity->links, list) {
++		struct media_pad *pad = link->sink->entity == entity ?
++					link->sink : link->source;
++
++		if (pad->index != pad_index ||
++		    !(link->flags & MEDIA_LNK_FL_ENABLED))
++			continue;
++
++		/* Error out with more than a single candidate. */
++		if (candidate != ERR_PTR(-ENODEV))
++			return ERR_PTR(-ENXIO);
++
++		candidate = link;
++	}
++
++	return candidate;
++}
++EXPORT_SYMBOL_GPL(media_entity_get_single_enabled_link);
++
+ struct media_pad *media_entity_remote_pad(const struct media_pad *pad)
+ {
+ 	struct media_link *link;
+ 	
+--- a/include/media/media-entity.h
++++ b/include/media/media-entity.h
+@@ -844,6 +844,19 @@ int media_entity_setup_link(struct media_link *link, u32 flags);
+ struct media_link *media_entity_find_link(struct media_pad *source,
+ 		struct media_pad *sink);
+ 
++/**
++ * media_entity_get_single_enabled_link - Get a single link for an entity pad
++ * @entity: The entity
++ * @pad_index: The index of the entity's pad expected to take part in link
++ *
++ * Return: returns a pointer to the single enabled link with the entity's pad.
++ * If no such link exists, returns a pointer error with %-ENODEV.
++ * If more than a single link exist, returns a pointer error with %-ENXIO.
++ */
++struct media_link *
++media_entity_get_single_enabled_link(struct media_entity *entity,
++				     u16 pad_index);
++
+ /**
+  * media_entity_remote_pad - Find the pad at the remote end of a link
+  * @pad: Pad at the local end of the link
