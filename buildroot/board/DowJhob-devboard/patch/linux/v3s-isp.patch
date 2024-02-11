@@ -3168,11 +3168,10 @@
  struct media_pad *media_entity_remote_pad(const struct media_pad *pad)
  {
  	struct media_link *link;
-diff --git a/include/media/media-entity.h b/include/media/media-entity.h
-index a9a1c0ec5d1c..63c1436ffacf 100644
+
 --- a/include/media/media-entity.h
 +++ b/include/media/media-entity.h
-@@ -847,6 +847,19 @@ int media_entity_setup_link(struct media_link *link, u32 flags);
+@@ -844,6 +844,19 @@ int media_entity_setup_link(struct media_link *link, u32 flags);
  struct media_link *media_entity_find_link(struct media_pad *source,
  		struct media_pad *sink);
  
@@ -3189,3 +3188,6 @@ index a9a1c0ec5d1c..63c1436ffacf 100644
 +media_entity_get_single_enabled_link(struct media_entity *entity,
 +				     u16 pad_index);
 +
+ /**
+  * media_entity_remote_pad - Find the pad at the remote end of a link
+  * @pad: Pad at the local end of the link
