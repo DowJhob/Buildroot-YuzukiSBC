@@ -102,22 +102,7 @@
 	};	
 	
 };
-
-&isp {
-        ports {
-            #address-cells = <1>;
-            #size-cells = <0>;
-
-            port@0 {
-                reg = <0>;
-
-                isp_in_csi0: endpoint {
-                    remote-endpoint = <&gc0403_ep>;
-                };
-            };
-        };
-    };
-    
+  
 &i2c1 {
 	pinctrl-0 = <&i2c1_pe_pins>;
 	pinctrl-names = "default";

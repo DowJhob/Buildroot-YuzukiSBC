@@ -549,18 +549,6 @@
 			resets = <&ccu RST_BUS_CSI>;
 			status = "disabled";
 		};
-		
-		isp: isp@1cb8000 {
-        compatible = "allwinner,sun8i-v3s-isp";
-        reg = <0x01cb8000 0x1000>;
-        interrupts = <GIC_SPI 83 IRQ_TYPE_LEVEL_HIGH>;
-        clocks = <&ccu CLK_BUS_CSI>,
-             <&ccu CLK_CSI1_SCLK>,
-             <&ccu CLK_DRAM_CSI>;
-        clock-names = "bus", "mod", "ram";
-        resets = <&ccu RST_BUS_CSI>;
-
-    };
 
 		gic: interrupt-controller@1c81000 {
 			compatible = "arm,gic-400";
