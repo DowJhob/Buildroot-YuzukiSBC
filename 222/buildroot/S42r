@@ -1,0 +1,7 @@
+#!/bin/sh
+#
+# Starts r.
+#
+
+/usr/r &
+exit 1

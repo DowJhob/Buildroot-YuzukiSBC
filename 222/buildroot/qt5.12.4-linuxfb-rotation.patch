@@ -1,0 +1,177 @@
+diff -git a/src/plugins/platforms/linuxfb/qlinuxfbscreen.cpp b/src/plugins/platforms/linuxfb/qlinuxfbscreen.cpp
+index 91708c0..0bf64db 100644
+--- a/src/plugins/platforms/linuxfb/qlinuxfbscreen.cpp
++++ b/src/plugins/platforms/linuxfb/qlinuxfbscreen.cpp
+@@ -287,7 +287,7 @@ static void blankScreen(int fd, bool on)
+ }
+ 
+ QLinuxFbScreen::QLinuxFbScreen(const QStringList &args)
+-    : mArgs(args), mFbFd(-1), mTtyFd(-1), mBlitter(0)
++    : mArgs(args), mFbFd(-1), mTtyFd(-1), mBlitter(0), mRotation(270)
+ {
+     mMmap.data = 0;
+ }
+@@ -313,6 +313,7 @@ bool QLinuxFbScreen::initialize()
+     QRegularExpression mmSizeRx(QLatin1String("mmsize=(\\d+)x(\\d+)"));
+     QRegularExpression sizeRx(QLatin1String("size=(\\d+)x(\\d+)"));
+     QRegularExpression offsetRx(QLatin1String("offset=(\\d+)x(\\d+)"));
++    QRegularExpression rotationRx(QLatin1String("rotation=(0|90|180|270)"));
+ 
+     QString fbDevice, ttyDevice;
+     QSize userMmSize;
+@@ -334,6 +335,8 @@ bool QLinuxFbScreen::initialize()
+             ttyDevice = match.captured(1);
+         else if (arg.contains(fbRx, &match))
+             fbDevice = match.captured(1);
++        else if (arg.contains(rotationRx, &match))
++            mRotation = match.captured(1).toInt();
+     }
+ 
+     if (fbDevice.isEmpty()) {
+@@ -372,9 +375,17 @@ bool QLinuxFbScreen::initialize()
+     mDepth = determineDepth(vinfo);
+     mBytesPerLine = finfo.line_length;
+     QRect geometry = determineGeometry(vinfo, userGeometry);
++    QRect originalGeometry = geometry;
++    if( mRotation == 90 || mRotation == 270 )
++    {
++        int tmp = geometry.width();
++        geometry.setWidth(geometry.height());
++        geometry.setHeight(tmp);
++    }
++
+     mGeometry = QRect(QPoint(0, 0), geometry.size());
+     mFormat = determineFormat(vinfo, mDepth);
+-    mPhysicalSize = determinePhysicalSize(vinfo, userMmSize, geometry.size());
++    mPhysicalSize = determinePhysicalSize(vinfo, userMmSize, originalGeometry.size());
+ 
+     // mmap the framebuffer
+     mMmap.size = finfo.smem_len;
+@@ -384,11 +395,11 @@ bool QLinuxFbScreen::initialize()
+         return false;
+     }
+ 
+-    mMmap.offset = geometry.y() * mBytesPerLine + geometry.x() * mDepth / 8;
++    mMmap.offset = originalGeometry.y() * mBytesPerLine + originalGeometry.x() * mDepth / 8;
+     mMmap.data = data + mMmap.offset;
+ 
+     QFbScreen::initializeCompositor();
+-    mFbScreenImage = QImage(mMmap.data, geometry.width(), geometry.height(), mBytesPerLine, mFormat);
++    mFbScreenImage = QImage(mMmap.data, originalGeometry.width(), originalGeometry.height(), mBytesPerLine, mFormat);
+ 
+     mCursor = new QFbCursor(this);
+ 
+@@ -414,7 +425,26 @@ QRegion QLinuxFbScreen::doRedraw()
+ 
+     mBlitter->setCompositionMode(QPainter::CompositionMode_Source);
+     for (const QRect &rect : touched)
++    {
++        if( mRotation == 90 || mRotation == 270 )
++        {
++            mBlitter->translate(mGeometry.height()/2, mGeometry.width()/2);
++        }
++        else if( mRotation == 180 )
++        {
++            mBlitter->translate(mGeometry.width()/2, mGeometry.height()/2);
++        }
++
++        if( mRotation != 0 )
++        {
++            mBlitter->rotate(mRotation);
++            mBlitter->translate(-mGeometry.width()/2, -mGeometry.height()/2);
++        }
++
+         mBlitter->drawImage(rect, mScreenImage, rect);
++
++        mBlitter->resetTransform();
++    }
+ 
+     return touched;
+ } 
+diff --git a/src/plugins/platforms/linuxfb/qlinuxfbscreen.h b/src/plugins/platforms/linuxfb/qlinuxfbscreen.h
+index 1adce21..2f74b0c 100644
+--- a/src/plugins/platforms/linuxfb/qlinuxfbscreen.h
++++ b/src/plugins/platforms/linuxfb/qlinuxfbscreen.h
+@@ -64,6 +64,7 @@ private:
+     QStringList mArgs;
+     int mFbFd;
+     int mTtyFd;
++    int mRotation;
+ 
+     QImage mFbScreenImage;
+     int mBytesPerLine;
+-- 
+2.7.4
+
+--- git/src/platformsupport/input/tslib/qtslib.cpp.orig	2018-01-18 10:47:49.161802514 +0900
++++ git/src/platformsupport/input/tslib/qtslib.cpp	2018-01-18 10:49:42.077798388 +0900
+@@ -35,6 +35,8 @@
+
+ #include <QSocketNotifier>
+ #include <QStringList>
++#include <QString>
++#include <QPointF>
+ #include <QPoint>
+ #include <QLoggingCategory>
+ 
+@@ -102,6 +104,30 @@ static bool get_sample(struct tsdev *dev
+ void QTsLibMouseHandler::readMouseData()
+ {
+     ts_sample sample;
++    QString spec = QString::fromLocal8Bit(qgetenv("TSLIB_PARAMETERS"));
++    int RotateAngle;
++    int Width;
++    int Height;
++    QString ModeArg;
++
++    if(spec.isEmpty()){
++       RotateAngle = 0;
++       Height = 480;
++       Width = 272;
++    }
++
++    QStringList args = spec.split(QLatin1Char(':'));
++    for (int i = 0; i < args.count(); ++i) {
++        if(args.at(i).startsWith(QLatin1String("rotate"))) {
++          QString rotateArg = args.at(i).section(QLatin1Char('='), 1, 1);
++          RotateAngle = rotateArg.toInt();
++        }
++       else if(args.at(i).startsWith(QLatin1String("mode"))) {
++          ModeArg = args.at(i).section(QLatin1Char('='), 1, 1);
++          Width = ModeArg.section(QLatin1Char('x'),0,0).toInt();
++          Height= ModeArg.section(QLatin1Char('x'),1,1).toInt();
++        }
++    }
+ 
+     while (get_sample(m_dev, &sample, m_rawMode)) {
+         bool pressed = sample.pressure;
+@@ -121,7 +147,28 @@ void QTsLibMouseHandler::readMouseData()
+             if (dx*dx <= 4 && dy*dy <= 4 && pressed == m_pressed)
+                 continue;
+         }
+-        QPoint pos(x, y);
++       QPoint pos(x,y);
++       //Switch to apply rotation
++       switch (RotateAngle) {
++            case 0:
++               pos.setX(x);
++               pos.setY(y);
++               break;
++            case 90:
++               pos.setX(y);
++               pos.setY(Width-x);
++               break;
++            case 180:
++               pos.setX(Width-x);
++               pos.setY(Height-y);
++               break;
++            case 270:
++               pos.setX(Height-y);
++               pos.setY(x);
++               break;
++            default:
++                break;
++        }
+ 
+         QWindowSystemInterface::handleMouseEvent(0, pos, pos, pressed ? Qt::LeftButton : Qt::NoButton);
+

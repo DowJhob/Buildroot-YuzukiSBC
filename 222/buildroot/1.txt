@@ -1,0 +1,33 @@
+	cmd_idx = 0;
+
+	prepare_spi_batch_data_transfer(dev, dev->soc_info->spl_addr);
+	//add bank support
+	{
+	cmd_idx = 0;
+	bank_sel = offset /SPI_FLASH_16MB_BOUN;
+	if (bank_sel == bank_curr)
+		goto bar_end;
+
+	/* Emit write enable command */
+	cmdbuf[cmd_idx++] = 0;
+	cmdbuf[cmd_idx++] = 1;
+	cmdbuf[cmd_idx++] = CMD_WRITE_ENABLE;
+	/* Emit write bank */
+	cmdbuf[cmd_idx++] = 0;
+	cmdbuf[cmd_idx++] = 2;
+	cmdbuf[cmd_idx++] = CMD_EXTNADDR_WREAR;
+	cmdbuf[cmd_idx++] = offset >> 24;
+	/* Emit wait for completion */
+	cmdbuf[cmd_idx++] = 0xFF;
+	cmdbuf[cmd_idx++] = 0xFF;
+	/* Emit the end marker */
+	cmdbuf[cmd_idx++] = 0;
+	cmdbuf[cmd_idx++] = 0;
+	aw_fel_write(dev, cmdbuf, dev->soc_info->spl_addr, cmd_idx);
+	aw_fel_remotefunc_execute(dev, NULL);
+	bar_end:
+		bank_curr = bank_sel;
+	}
+	
+	cmd_idx = 0;
+После перекомпиляции sunxi-fel вы сможет
